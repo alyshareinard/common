@@ -7,8 +7,9 @@ Created on Wed Mar  9 12:44:35 2016
 
 from urllib.request import urlopen
 from datetime import datetime
-import sys
-
+#import numpy as np
+import pickle
+from pandas import DataFrame
 
 def read_ars():
     web_stem="http://www.ngdc.noaa.gov/stp/space-weather/solar-data/solar-features/sunspot-regions/usaf_mwl/"
@@ -79,7 +80,7 @@ def read_ars():
             try:
                 long_extent.append(int(line[46:48]))
             except:
-                num_spots.append(None)
+                long_extent.append(None)
                 
             try:
                 area.append(int(line[48:52]))
@@ -105,6 +106,7 @@ def read_ars():
 #    print(qual)
 #    print([(y+" "+m+" "+d+" "+t) for y, m, d, t in zip(year, month, day, time)])
     ar_date=[]
+    print("length is:", len(year))
     for i in range(len(year)):
 #        print(time[i])
         try:
@@ -116,8 +118,24 @@ def read_ars():
         except:
             ar_date.append(None)
 
-#TODO put this into ndarray and pickle it
     
+    AR_vals=DataFrame(data=[ar_date, loc, mag_class, max_mag, mw_spot_gn, noaa_spot_gn, 
+                     num_spots, zurich, compactness, penumbra, long_extent, area, qual])
+    print(AR_vals.shape)
+    AR_vals=AR_vals.transpose()
+    print(AR_vals.shape) 
     
+    cols=['ar_date', 'loc', 'mag_class', 'max_mag', 'mw_spot_gn', 
+                         'noaa_spot_gn', 'num_spots', 'zurich', 'compactness', 
+                         'penumbra', 'long_extent', 'area', 'qual']
+    AR_vals.columns=cols                     
+
+#    print(AR_vals.dtype)
+#    AR_vals.dtype.names=('ar_date', 'loc', 'mag_class', 'max_mag', 'mw_spot_gn', 
+#                         'noaa_spot_gn', 'num_spots', 'zurich', 'compactness', 
+#                         'penumbra', 'long_extent', 'area', 'qual')
+    filehandler=open('../data/ar_vals.p', 'wb')
+    pickle.dump(AR_vals, filehandler)
+
     
 read_ars()
