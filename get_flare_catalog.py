@@ -28,9 +28,9 @@ def get_flare_catalog():
     """ xray_size, NOAA_AR """
 
     #define data file location
-    data_dir=os.getcwd()+"\data"
-    ha_file=data_dir+"\ha.txt"
-    xray_file=data_dir+r"\xray.txt"
+    data_dir=os.getcwd()+"/data"
+    ha_file=data_dir+"/ha.txt"
+    xray_file=data_dir+"/xray.txt"
 
     #Fill in H-alpha values
     #prepare lists for variables

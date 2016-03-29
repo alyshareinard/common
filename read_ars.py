@@ -134,7 +134,7 @@ def read_ars():
 #    AR_vals.dtype.names=('ar_date', 'loc', 'mag_class', 'max_mag', 'mw_spot_gn', 
 #                         'noaa_spot_gn', 'num_spots', 'zurich', 'compactness', 
 #                         'penumbra', 'long_extent', 'area', 'qual')
-    filehandler=open('../data/ar_vals.p', 'wb')
+    filehandler=open('data/ar_vals.p', 'wb')
     pickle.dump(AR_vals, filehandler)
 
     

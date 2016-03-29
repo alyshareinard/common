@@ -4,8 +4,8 @@ from datetime import datetime
 def get_yashiro_catalog():
     """ program to read in yashiro CME catalog """
 
-    data_dir=os.getcwd()+"\data"
-    cme_file=data_dir+"\yashiro_all.txt"
+    data_dir=os.getcwd()+"/data"
+    cme_file=data_dir+"/yashiro_all.txt"
 
     #prepare lists for CME values
     CME_date=[]
