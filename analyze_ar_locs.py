@@ -5,6 +5,8 @@ Created on Thu Mar 10 13:51:06 2016
 @author: alysha.reinard
 """
 import pickle
+import numpy as np
+import pdb
 
 def load_ar_locs():
     f=open('data/ar_vals.p', 'rb')
@@ -29,14 +31,28 @@ def load_ar_locs():
     ar_vals["NS"]=NS
     ar_vals["EW"]=EW
     print(ar_vals["noaa_spot_gn"][0:20])
-    ar_indexes=group_ars(ar_vals)
-    movement_diff=map_ar_movement(ar_vals, ar_indexes)
+    try:
+        f=open('data/ar_grouped.p')
+        ar_indexes=pickle.load(f)
+    except:
+        ar_indexes=group_ars(ar_vals)
+        
+    try:
+        f=open('data/ar_moves.p')
+        movement_diff=pickle.load(f)
+    except:
+        movement_diff=map_ar_movement(ar_vals, ar_indexes)
     time_diff=[x[1] for x in movement_diff]
-    NS_diff=[x[3] for x in movement_diff]
-    EW_diff=[x[4] for x in movement_diff]
-    NS_vel=NS_diff/time_diff
-    EW_vel=EW_diff/time_diff
-    print(NS_vel)
+    NS_vel=[x[3]/(x[1].total_seconds()/60./60.) for x in movement_diff]
+    EW_vel=[x[4]/(x[1].total_seconds()/60./60.) for x in movement_diff]
+#    NS_vel=NS_diff/time_diff
+#    EW_vel=EW_diff/time_diff
+    #TODO: put this in reasonable units -- also check degrees vs distance and if
+    #it's different near limb
+#    print("at end")
+#    print(movement_diff[0:100])
+#    print(NS_vel[0:100])
+#    print(EW_vel[0:100])
     
     
 def group_ars(ar_vals):
@@ -58,6 +74,8 @@ def group_ars(ar_vals):
                     matching_index.append(index)
             target_index.append(matching_index)
 
+    filehandler=open('data/ar_grouped.p', 'wb')
+    pickle.dump(target_index, filehandler)
 #    print(target_index)
 #    print(ar_vals["loc"][target_index[1]])
     return target_index 
@@ -69,11 +87,13 @@ def map_ar_movement(ar_vals, ar_indexes):
         #same AR and save the AR number, time difference, starting location, NS motion, EW motion
 
         time_through=0
+
         for index in ar_set:
+#            print("time through", time_through)
             if time_through==0:
                 old_ar_num=ar_vals["noaa_spot_gn"][index]
                 old_time=ar_vals["ar_date"][index]
-                loc=ar_vals["loc"][index]
+                old_loc=ar_vals["loc"][index]
                 old_NS=ar_vals["NS"][index]
                 old_EW=ar_vals["EW"][index]
                 time_through+=1
@@ -86,14 +106,31 @@ def map_ar_movement(ar_vals, ar_indexes):
                     time_diff=ar_vals["ar_date"][index]-old_time
                     NS_diff=ar_vals["NS"][index]-old_NS
                     EW_diff=ar_vals["EW"][index]-old_EW
+#                    print(time_diff)
+                    if time_diff.total_seconds()<0 and EW_diff>0:
+                        print(ar_set)
+                        print("time diff is negative", time_diff)
+                        print(ar_vals["ar_date"][index])
+                        print(old_time)
+                        print(index)
+                        print(old_loc, loc)
+                        print(NS_diff, old_NS)
+                        print(EW_diff, old_EW)
+                        print(old_ar_num)
+                        print(ar_vals["ar_date"][ar_set])
+#                        pdb.set_trace()
                     saveit=[old_ar_num, time_diff, loc, NS_diff, EW_diff]
                     ar_movement_diff.append(saveit)
                 except:
-                    print("skipping None")
+                    pass
+#                    print("skipping None")
+                old_loc=loc
                 old_time=ar_vals["ar_date"][index]
                 old_NS=ar_vals["NS"][index]
                 old_EW=ar_vals["EW"][index]
                 
+    filehandler=open('data/ar_moves.p', 'wb')
+    pickle.dump(ar_movement_diff, filehandler)
     return ar_movement_diff
                 
             
