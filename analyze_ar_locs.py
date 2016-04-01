@@ -7,6 +7,7 @@ Created on Thu Mar 10 13:51:06 2016
 import pickle
 import numpy as np
 import pdb
+import matplotlib.pyplot as plt
 
 def load_ar_locs():
     f=open('data/ar_vals.p', 'rb')
@@ -21,10 +22,11 @@ def load_ar_locs():
             NS_val=int(x[1:3])
             EW_val=int(x[4:6])
             if x[0]=="S": NS_val=-NS_val
-            if x[3]=="E": EW_val==-EW_val
+            if x[3]=="E": EW_val=-EW_val
         
             NS.append(NS_val)
             EW.append(EW_val)
+
         else:
             NS.append(None)
             EW.append(None)
@@ -33,18 +35,23 @@ def load_ar_locs():
     print(ar_vals["noaa_spot_gn"][0:20])
     try:
         f=open('data/ar_grouped.p')
-        ar_indexes=pickle.load(f)
-    except:
+        ar_indexes=pickle.load(f, encoding='latin1')
+#        ar_indexes=pickle.load(f)
+        print("loaded file")
+    except Exception as e:
+        print(e)
+        print("recalculating from scratch")
         ar_indexes=group_ars(ar_vals)
         
-    try:
-        f=open('data/ar_moves.p')
-        movement_diff=pickle.load(f)
-    except:
-        movement_diff=map_ar_movement(ar_vals, ar_indexes)
-    time_diff=[x[1] for x in movement_diff]
-    NS_vel=[x[3]/(x[1].total_seconds()/60./60.) for x in movement_diff]
-    EW_vel=[x[4]/(x[1].total_seconds()/60./60.) for x in movement_diff]
+    dist_vs_time(ar_indexes, ar_vals)
+#    try:
+#        f=open('data/ar_moves.p')
+#        movement_diff=pickle.load(f)
+#    except:
+#        movement_diff=map_ar_movement(ar_vals, ar_indexes)
+#    time_diff=[x[1] for x in movement_diff]
+#    NS_vel=[x[3]/(x[1].total_seconds()/60./60.) for x in movement_diff]
+#    EW_vel=[x[4]/(x[1].total_seconds()/60./60.) for x in movement_diff]
 #    NS_vel=NS_diff/time_diff
 #    EW_vel=EW_diff/time_diff
     #TODO: put this in reasonable units -- also check degrees vs distance and if
@@ -53,7 +60,32 @@ def load_ar_locs():
 #    print(movement_diff[0:100])
 #    print(NS_vel[0:100])
 #    print(EW_vel[0:100])
+#    return (NS_vel, EW_vel, movement_diff)
     
+def dist_vs_time(ar_indexes, ar_vals):
+    for ar in ar_indexes:
+        if len(ar)>=5:
+            EW_vals=ar_vals["EW"][ar]
+            NS_vals=ar_vals["NS"][ar]
+            time_vals=ar_vals["ar_date"][ar]
+            print(EW_vals)
+            print(time_vals)
+            print(ar_vals["loc"][ar])
+            print(ar_vals["noaa_spot_gn"][ar])
+    #        print(type(time_vals))
+            init_time=time_vals.values[0]
+            time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+            time_diffs=[x.total_seconds()/60./60 for x in time_diffs]
+            fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
+            print(fit)
+            fit_fn=np.poly1d(fit)
+            print(fit_fn)
+            print(res/len(ar))
+            plt.plot(time_diffs, EW_vals, 'yo', time_diffs, fit_fn(time_diffs), '--k')
+            plt.show()
+            pauseit=input("press enter to continue, q to break")
+            if pauseit=="q": break
+        
     
 def group_ars(ar_vals):
 #    print(len(ar_vals))
@@ -66,7 +98,7 @@ def group_ars(ar_vals):
     for target in ar_vals["noaa_spot_gn"]:
 
         matching_index=[]
-        if target not in done:
+        if target not in done and target !=None:
             done.append(target)
  #           print(target)
             for index, noaa_spot in enumerate(ar_vals["noaa_spot_gn"]):
@@ -118,6 +150,7 @@ def map_ar_movement(ar_vals, ar_indexes):
                         print(EW_diff, old_EW)
                         print(old_ar_num)
                         print(ar_vals["ar_date"][ar_set])
+                        pass
 #                        pdb.set_trace()
                     saveit=[old_ar_num, time_diff, loc, NS_diff, EW_diff]
                     ar_movement_diff.append(saveit)
