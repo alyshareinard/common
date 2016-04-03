@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 import pdb
 import matplotlib.pyplot as plt
+import math
 
 def load_ar_locs():
     f=open('data/ar_vals.p', 'rb')
@@ -34,7 +35,7 @@ def load_ar_locs():
     ar_vals["EW"]=EW
     print(ar_vals["noaa_spot_gn"][0:20])
     try:
-        f=open('data/ar_grouped.p')
+        f=open('data/ar_grouped.p', 'rb')
         ar_indexes=pickle.load(f, encoding='latin1')
 #        ar_indexes=pickle.load(f)
         print("loaded file")
@@ -63,6 +64,10 @@ def load_ar_locs():
 #    return (NS_vel, EW_vel, movement_diff)
     
 def dist_vs_time(ar_indexes, ar_vals):
+    slopes=[]
+    count_bad=0
+    count_good=0
+    good_ars=[]
     for ar in ar_indexes:
         if len(ar)>=5:
             EW_vals=ar_vals["EW"][ar]
@@ -78,14 +83,58 @@ def dist_vs_time(ar_indexes, ar_vals):
             time_diffs=[x.total_seconds()/60./60 for x in time_diffs]
             fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
             print(fit)
+            slopes.append(fit[0])
             fit_fn=np.poly1d(fit)
             print(fit_fn)
-            print(res/len(ar))
+            print(math.sqrt(res)/len(ar))
             plt.plot(time_diffs, EW_vals, 'yo', time_diffs, fit_fn(time_diffs), '--k')
             plt.show()
-            pauseit=input("press enter to continue, q to break")
-            if pauseit=="q": break
-        
+            if (math.sqrt(res)/len(ar)) > 1 or (fit[0]<0.4 or fit[0]>0.7): 
+                pauseit=input("good enough (g), take out a couple point (t) or bad (b) (q) to break")                
+                if pauseit=="q": break
+                elif pauseit=="g": 
+                    good_ars.append(ar)
+                    count_good+=1
+                elif pauseit=="t":
+                    removeit=input("which points?")
+                    done=False
+                    
+                    while done == False:
+                        new_ar=list(ar)
+                        badpoints=[]
+                        for val in removeit.split(" "):
+                            badpoints.append(int(val))
+                        for index in sorted(badpoints, reverse=True):
+                            del new_ar[index]
+                        EW_vals=ar_vals["EW"][new_ar]
+                        time_vals=ar_vals["ar_date"][new_ar]
+                        init_time=time_vals.values[0]
+                        time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+                        time_diffs=[x.total_seconds()/60./60 for x in time_diffs]                       
+                        fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
+                        slopes.pop()
+                        slopes.append(fit[0])
+                        fit_fn=np.poly1d(fit)
+                        plt.plot(time_diffs, EW_vals, 'yo', time_diffs, fit_fn(time_diffs), '--k')
+                        plt.show()
+                        goodnow=input("good now (g), try again (t), no good -- give up (n)")
+                        if goodnow=="g": 
+                            count_good+=1
+                            good_ars.append(ar)
+                            done=True
+                        if goodnow=="n":
+                            count_bad+=1
+                            slopes.pop()
+            else:
+                good_ars.append(ar)
+                count_good+=1
+    print("bad", count_bad)
+    print("good", count_good)
+    filehandler=open("data/good_ars.p", "wb")
+    pickle.dump(good_ars, filehandler)
+    
+    plt.hist(slopes, bins=[.4, 0.425, 0.45, 0.475, .5, 0.525, 0.55, 0.575, .6, 0.625, 0.65, 0.675, .7])
+    plt.show()
     
 def group_ars(ar_vals):
 #    print(len(ar_vals))
