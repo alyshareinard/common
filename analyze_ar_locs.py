@@ -9,6 +9,8 @@ import numpy as np
 import pdb
 import matplotlib.pyplot as plt
 import math
+import sys
+from datetime import datetime
 
 def load_ar_locs():
     f=open('data/ar_vals.p', 'rb')
@@ -44,7 +46,9 @@ def load_ar_locs():
         print("recalculating from scratch")
         ar_indexes=group_ars(ar_vals)
         
-    dist_vs_time(ar_indexes, ar_vals)
+    #dist_vs_time_auto(ar_indexes, ar_vals)
+    match_ars(ar_vals)
+    
 #    try:
 #        f=open('data/ar_moves.p')
 #        movement_diff=pickle.load(f)
@@ -63,38 +67,244 @@ def load_ar_locs():
 #    print(EW_vel[0:100])
 #    return (NS_vel, EW_vel, movement_diff)
     
+    
+def match_ars(ar_vals):
+    f=open("data/good_ars_alldone.p", "rb")
+    ars=pickle.load(f)
+    ar_indexes=[]
+    ar_nums=[]
+    ar_fits=[]
+    times=[]
+    EWs=[]
+    init_time=datetime(1982, 1, 1, 0, 0)
+    for ar in ars:
+        #collect all the AR indexes in one list (instead of a list of lists)
+        for val in ar:
+            ar_indexes.append(val)
+        time_vals=ar_vals["ar_date"][ar]
+        time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+        time_diffs=[x.total_seconds()/60./60/24. for x in time_diffs]
+        EW_vals=ar_vals["EW"][ar]
+        times.append(time_diffs)
+        EWs.append(EW_vals)
+        fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
+#        fit_fn=np.poly1d(fit)
+        ar_nums.append(ar_vals["noaa_spot_gn"][ar[0]])
+        ar_fits.append(fit)
+        
+    EW_all=ar_vals["EW"][ar_indexes]
+    time_all=ar_vals["ar_date"][ar_indexes]
+    time_diffs_all=[x-init_time for x in time_all.values] #normalize to zero
+    time_diffs_all=[x.total_seconds()/60./60/24. for x in time_diffs_all]
+    plt.plot(time_diffs_all, EW_all, 'yo')
+    plt.xlim(-35, 20)
+    plt.show()
+    for ar in ars:
+        time_vals=ar_vals["ar_date"][ar]
+        time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+        time_diffs=[x.total_seconds()/60./60/24. for x in time_diffs]
+        EW_vals=ar_vals["EW"][ar]
+        fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
+        fit_fn=np.poly1d(fit)
+
+        plt.plot(time_diffs_all, EW_all, 'yo', time_diffs, fit_fn(time_diffs), '--k')
+        #now shift
+        #y=mx+b - > x=(y-b)/m where y = 270
+        
+        new_x=(270-fit[1])/fit[0]
+        #y=mx+b -> b=y-mx
+        new_int=-90-fit[0]*new_x
+        print(fit)
+        print("new x", new_x)
+        print("new int", new_int)
+        new_fit=[fit[0], new_int]
+        print("new_fit", new_fit)
+        new_fit_fn=np.poly1d(new_fit)
+        print(new_fit_fn)
+        plt.plot([-90, 90], new_fit_fn([-90, 90]), '--k')
+        plt.xlim(-25,0)
+        plt.ylim(-90, 90)
+        plt.show()  
+        for index, val in enumerate(ar_fits):
+#            print("val", val)
+#            print("new_fit", new_fit)
+            if val[1]>new_fit[1]-10 and val[1]<new_fit[1]+10:
+                print(times[index])
+                print(EWs[index])
+                plt.plot(times[index], EWs[index], 'yo', times[index], new_fit_fn(times[index]), '--k')
+                plt.show()
+                print("want to match:", new_fit)
+                print("this one?", val)
+                pauseit=input("Enter to continue, 'q' to break, 'qqq' to stop program")
+                if pauseit=='q': 
+                    break
+                if pauseit=='qqq':
+                    sys.exit(0)
+        
+def dist_vs_time_auto(ar_indexes, ar_vals):
+    count_bad=0
+    count_good=0
+    good_ars=[]
+    for ar in ar_indexes:   
+        NS_vals=ar_vals["NS"][ar]
+        time_vals=ar_vals["ar_date"][ar]
+        print(time_vals)
+        init_time=time_vals.values[0]
+        time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+        time_diffs=[x.total_seconds()/60./60/24. for x in time_diffs]
+        mean_time=np.mean(time_diffs)
+        
+        mean_NS=np.mean(NS_vals)
+        ar_temp=list(ar)
+        print("mean NS", mean_NS)
+        for index in ar:
+#            print(time_diffs)
+#            print(NS_vals)
+#            print("index", index, "NS", ar_vals["NS"][index])#, time_diffs[index])
+            time_diff=(ar_vals["ar_date"][index] - init_time)
+            time_diff=time_diff.total_seconds()/60./60./24.
+            if abs(ar_vals["NS"][index]-mean_NS)>8:
+                ar_temp.remove(index)
+                print("removing", index)
+            elif abs(time_diff-mean_time)>15: 
+                ar_temp.remove(index)
+                print("removing date that doesn't match", index)
+        ar=list(ar_temp)
+        if len(ar)>10:
+            EW_vals=ar_vals["EW"][ar]
+            NS_vals=ar_vals["NS"][ar]
+            time_vals=ar_vals["ar_date"][ar]
+#            print(time_vals)
+#            print(ar_vals["loc"][ar])
+#            print(ar_vals["noaa_spot_gn"][ar])
+    #        print(type(time_vals))
+            init_time=time_vals.values[0]
+            time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+            time_diffs=[x.total_seconds()/60./60./24. for x in time_diffs]
+            fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
+#            print(fit)
+#            slopes.append(fit[0])
+            fit_fn=np.poly1d(fit)
+#            print(fit_fn)
+#            print(math.sqrt(res)/len(ar))
+        #    NS_sep=max(NS_vals)-min(NS_vals)
+      
+            
+            #now check for and remove outliers
+
+            exp_ew=[fit[0]*x+fit[1] for x in time_diffs]
+ #           print(exp_ew)
+            diff_ew=abs(EW_vals-exp_ew)
+ #           print("diff", diff_ew)
+            plt.plot(time_diffs, EW_vals, 'yo', time_diffs, fit_fn(time_diffs), '--k')
+            plt.show()  
+            
+            ar_temp=list(ar)   
+            val, idx = max((val, idx) for (idx, val) in enumerate(diff_ew))
+ #           print(val, idx)
+ #           pauseit=input("press enter")
+ #           if pauseit=="q": break
+            num_removed=0
+            while val>5 and num_removed<(len(ar_temp)/3):
+                num_removed+=1
+
+#                if pauseit=="q": break
+                del ar[idx]
+                print("removed", val, idx)
+                EW_vals=ar_vals["EW"][ar]
+                time_vals=ar_vals["ar_date"][ar]
+                init_time=time_vals.values[0]
+                time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+                time_diffs=[x.total_seconds()/60./60/24. for x in time_diffs]
+                fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
+                exp_ew=[fit[0]*x+fit[1] for x in time_diffs]
+                diff_ew=abs(EW_vals-exp_ew)
+#                print(diff_ew)
+                fit_fn=np.poly1d(fit)
+                val, idx = max((val, idx) for (idx, val) in enumerate(diff_ew))
+                plt.plot(time_diffs, EW_vals, 'yo', time_diffs, fit_fn(time_diffs), '--k')
+                plt.show() 
+
+            if num_removed<(len(ar_temp)/3) and len(ar)>5:
+                good_ars.append(ar)
+                count_good+=1
+            else: count_bad+=1
+    print("good / all", count_good/(count_good+count_bad))
+    filehandler=open("data/good_ars_alldone.p", "wb")
+    pickle.dump(good_ars, filehandler)
+#                print("largest remaining error", val)
+#                pauseit=input("press enter")
+            
+#            for index, ew in enumerate(EW_vals):
+#                exp_ew=fit[0]*time_diffs[index]+fit[1]
+#                diff_ew=ew-exp_ew
+#                print("diff:", time_diffs[index], ew, diff_ew)
+#                pauseit=input("press enter to continue")
+            
+            
+            
 def dist_vs_time(ar_indexes, ar_vals):
-    slopes=[]
+
     count_bad=0
     count_good=0
     good_ars=[]
     for ar in ar_indexes:
+        print(ar)
+
+
+        NS_vals=ar_vals["NS"][ar]
+        time_vals=ar_vals["ar_date"][ar]
+        print(time_vals)
+        init_time=time_vals.values[0]
+        time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
+        time_diffs=[x.total_seconds()/60./60/24. for x in time_diffs]
+        mean_time=np.mean(time_diffs)
+        
+        mean_NS=np.mean(NS_vals)
+        ar_temp=list(ar)
+        print("mean NS", mean_NS)
+        for index in ar:
+#            print(time_diffs)
+#            print(NS_vals)
+#            print("index", index, "NS", ar_vals["NS"][index])#, time_diffs[index])
+            time_diff=(ar_vals["ar_date"][index] - init_time)
+            time_diff=time_diff.total_seconds()/60./60.
+            if abs(ar_vals["NS"][index]-mean_NS)>8:
+                ar_temp.remove(index)
+                print("removing", index)
+            elif abs(time_diff-mean_time)>360:  #360 = 15 days
+                ar_temp.remove(index)
+                print("removing date that doesn't match", index)
+        ar=list(ar_temp)
         if len(ar)>=5:
             EW_vals=ar_vals["EW"][ar]
             NS_vals=ar_vals["NS"][ar]
             time_vals=ar_vals["ar_date"][ar]
-            print(EW_vals)
             print(time_vals)
             print(ar_vals["loc"][ar])
-            print(ar_vals["noaa_spot_gn"][ar])
+#            print(ar_vals["noaa_spot_gn"][ar])
     #        print(type(time_vals))
             init_time=time_vals.values[0]
             time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
             time_diffs=[x.total_seconds()/60./60 for x in time_diffs]
             fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
             print(fit)
-            slopes.append(fit[0])
+#            slopes.append(fit[0])
             fit_fn=np.poly1d(fit)
             print(fit_fn)
             print(math.sqrt(res)/len(ar))
+            NS_sep=max(NS_vals)-min(NS_vals)
+            print("NS separation", NS_sep)
             plt.plot(time_diffs, EW_vals, 'yo', time_diffs, fit_fn(time_diffs), '--k')
             plt.show()
-            if (math.sqrt(res)/len(ar)) > 1 or (fit[0]<0.4 or fit[0]>0.7): 
+            if (math.sqrt(res)/len(ar)) > 1 or fit[0]<0.4 or fit[0]>0.7 or NS_sep>10: 
                 pauseit=input("good enough (g), take out a couple point (t) or bad (b) (q) to break")                
                 if pauseit=="q": break
                 elif pauseit=="g": 
                     good_ars.append(ar)
                     count_good+=1
+                elif pauseit=="b":
+                    count_bad+=1
                 elif pauseit=="t":
                     removeit=input("which points?")
                     done=False
@@ -102,39 +312,54 @@ def dist_vs_time(ar_indexes, ar_vals):
                     while done == False:
                         new_ar=list(ar)
                         badpoints=[]
-                        for val in removeit.split(" "):
-                            badpoints.append(int(val))
+                        if len(removeit)>0:
+                            for val in removeit.split(" "):
+                                try:
+                                    badpoints.append(int(val))
+                                except:
+                                    print("that's not a number!")
                         for index in sorted(badpoints, reverse=True):
-                            del new_ar[index]
+                            try:
+                                new_ar.remove(index)
+                            except:
+                                print(index, "wasn't in the list")
                         EW_vals=ar_vals["EW"][new_ar]
+                        NS_vals=ar_vals["NS"][new_ar]
                         time_vals=ar_vals["ar_date"][new_ar]
                         init_time=time_vals.values[0]
                         time_diffs=[x-init_time for x in time_vals.values] #normalize to zero
                         time_diffs=[x.total_seconds()/60./60 for x in time_diffs]                       
                         fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
-                        slopes.pop()
-                        slopes.append(fit[0])
+
                         fit_fn=np.poly1d(fit)
+                        print(fit_fn)
+                        print(math.sqrt(res)/len(ar))
+                        print("NS separation", max(NS_vals)-min(NS_vals))
                         plt.plot(time_diffs, EW_vals, 'yo', time_diffs, fit_fn(time_diffs), '--k')
                         plt.show()
-                        goodnow=input("good now (g), try again (t), no good -- give up (n)")
+                        goodnow=input("good now (g), try again (t), bad (b)")
                         if goodnow=="g": 
                             count_good+=1
-                            good_ars.append(ar)
+                            good_ars.append(new_ar)
                             done=True
-                        if goodnow=="n":
+                        if goodnow=="b":
                             count_bad+=1
-                            slopes.pop()
+                            done=True
+                        if goodnow=='t':
+                            removeit=input("which points?")
             else:
                 good_ars.append(ar)
                 count_good+=1
+                filehandler=open("data/good_ars.p", "wb")
+                pickle.dump(good_ars, filehandler)
+                print("good/all", count_good/(count_good+count_bad))
     print("bad", count_bad)
     print("good", count_good)
-    filehandler=open("data/good_ars.p", "wb")
+    filehandler=open("data/good_ars_alldone.p", "wb")
     pickle.dump(good_ars, filehandler)
     
-    plt.hist(slopes, bins=[.4, 0.425, 0.45, 0.475, .5, 0.525, 0.55, 0.575, .6, 0.625, 0.65, 0.675, .7])
-    plt.show()
+#    plt.hist(slopes, bins=[.4, 0.425, 0.45, 0.475, .5, 0.525, 0.55, 0.575, .6, 0.625, 0.65, 0.675, .7])
+#    plt.show()
     
 def group_ars(ar_vals):
 #    print(len(ar_vals))
