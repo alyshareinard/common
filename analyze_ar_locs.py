@@ -46,8 +46,18 @@ def load_ar_locs():
         print("recalculating from scratch")
         ar_indexes=group_ars(ar_vals)
         
-    dist_vs_time_auto(ar_indexes, ar_vals)
-    match_ars(ar_vals)
+    try:
+        f=open('data/matched_ars_alldone.p', 'rb')
+        matches=pickle.load(f)
+    except:
+        matches=match_ars(ar_vals)
+    
+    #now let's clean up the matches/pick the best ones
+    overcount=0
+    for match in matches:
+        if len(match)>2:
+            overcount+=1
+    print(overcount)
     
 #    try:
 #        f=open('data/ar_moves.p')
@@ -69,8 +79,14 @@ def load_ar_locs():
     
     
 def match_ars(ar_vals):
-    f=open("data/good_ars_alldone.p", "rb")
-    ars=pickle.load(f)
+    
+    try:
+        f=open("data/good_ars_alldone.p", "rb")
+        ars=pickle.load(f)
+    except:
+        dist_vs_time_auto(ar_indexes, ar_vals)    
+#    f=open("data/good_ars_alldone.p", "rb")
+#    ars=pickle.load(f)
     ar_indexes=[]
     ar_nums=[]
     ar_fits=[]
@@ -99,9 +115,9 @@ def match_ars(ar_vals):
     time_all=ar_vals["ar_date"][ar_indexes]
     time_diffs_all=[x-init_time for x in time_all.values] #normalize to zero
     time_diffs_all=[x.total_seconds()/60./60/24. for x in time_diffs_all]
-    plt.plot(time_diffs_all, EW_all, 'yo')
-    plt.xlim(-35, 20)
-    plt.show()
+#    plt.plot(time_diffs_all, EW_all, 'yo')
+#    plt.xlim(-35, 20)
+#    plt.show()
     ar_matches=[]
     for ar in ars:
 
@@ -128,10 +144,10 @@ def match_ars(ar_vals):
 #        print("new_fit", new_fit)
         new_fit_fn=np.poly1d(new_fit)
 #        print(new_fit_fn)
-        plt.plot([-90, 90], new_fit_fn([-90, 90]), '--k')
-        plt.xlim(-25,0)
-        plt.ylim(-90, 90)
-        plt.show()  
+#        plt.plot([-90, 90], new_fit_fn([-90, 90]), '--k')
+#        plt.xlim(-25,0)
+#        plt.ylim(-90, 90)
+#        plt.show()  
 
         for index, val in enumerate(ar_fits):
 #            print("val", val)
@@ -140,12 +156,23 @@ def match_ars(ar_vals):
             match_NS=np.mean(NSs[index])
             if val[1]>new_fit[1]-10 and val[1]<new_fit[1]+10 and this_NS<match_NS+10 and this_NS>match_NS-10:
                 this_ar.append(ar_nums[index])
+            
+        if len(this_ar)>2:
+        print("this_ar", this_ar)
+            for ar in this_ar:
+                index=ar_nums.index(ar)
+                print("info for AR ", ar)                
 #                print(times[index])
-##                print(EWs[index])
+                print("EW: ", min(EWs[index]), max(EWs[index]))
 #                print("this AR NS:", np.mean(NS_vals), max(NS_vals), min(NS_vals))
-#                print("matching AR: ", np.mean(NSs[index]), max(NSs[index]), min(NSs[index]))
-#                plt.plot(times[index], EWs[index], 'yo', times[index], new_fit_fn(times[index]), '--k')
-#                plt.show()
+                print("NS: ", np.mean(NSs[index]), max(NSs[index]), min(NSs[index]))
+                plt.plot(times[index], EWs[index], 'yo', times[index], new_fit_fn(times[index]), '--k')
+                plt.show()
+            print("Original AR: ", this_ar[0])
+            second=input("which AR is a best match?")
+            this_ar=[this_ar[0], int(second)]
+            print("okay, replacing with ", this_ar)
+                
 #                print("want to match:", new_fit)
 #                print("this one?", val)
 #                pauseit=input("Enter if not a match, 'y' to match, 'q' to break, 'qqq' to stop program")
@@ -161,6 +188,7 @@ def match_ars(ar_vals):
 #        pickle.dump(ar_matches, filehandler)   
     filehandler=open("data/matched_ars_alldone.p", "wb")
     pickle.dump(ar_matches, filehandler)    
+    return ar_matches        
         
 def dist_vs_time_auto(ar_indexes, ar_vals):
     count_bad=0
