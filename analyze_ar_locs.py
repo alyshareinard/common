@@ -46,7 +46,7 @@ def load_ar_locs():
         print("recalculating from scratch")
         ar_indexes=group_ars(ar_vals)
         
-    #dist_vs_time_auto(ar_indexes, ar_vals)
+    dist_vs_time_auto(ar_indexes, ar_vals)
     match_ars(ar_vals)
     
 #    try:
