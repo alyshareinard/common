@@ -158,7 +158,7 @@ def match_ars(ar_vals):
                 this_ar.append(ar_nums[index])
             
         if len(this_ar)>2:
-        print("this_ar", this_ar)
+            print("this_ar", this_ar)
             for ar in this_ar:
                 index=ar_nums.index(ar)
                 print("info for AR ", ar)                
