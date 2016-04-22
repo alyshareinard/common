@@ -172,7 +172,7 @@ def match_ars(ar_vals):
             second=input("which AR is a best match?")
             this_ar=[this_ar[0], int(second)]
             print("okay, replacing with ", this_ar)
-                
+            #TODO calculate the error based on each AR match    
 #                print("want to match:", new_fit)
 #                print("this one?", val)
 #                pauseit=input("Enter if not a match, 'y' to match, 'q' to break, 'qqq' to stop program")
