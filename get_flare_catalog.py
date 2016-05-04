@@ -29,6 +29,7 @@ def get_flare_catalog():
 
     #define data file location
     data_dir=os.getcwd()+"/data"
+    data_dir="/Users/alyshareinard/Documents/python/common/data"
     ha_file=data_dir+"/ha.txt"
     xray_file=data_dir+"/xray.txt"
 
@@ -56,8 +57,6 @@ def get_flare_catalog():
     final_missing=0
     peak_missing=0
     for line in ha_all_data:
-#        print(line)
-        #TODO my subscripts are all wrong!
         group_num.append(line[0:2])
         station_num.append(line[2:4])
         year=int(line[5:7])
@@ -184,9 +183,8 @@ def get_flare_catalog():
     init_missing=0
     final_missing=0
     peak_missing=0
-    for line in ha_all_data:
-#        print(line)
-        #TODO my subscripts are all wrong!
+    for line in xray_all_data:
+#        print("line", line)
         group_num.append(line[0:2])
         station_num.append(line[2:4])
         year=int(line[5:7])
