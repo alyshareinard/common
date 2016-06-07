@@ -16,10 +16,13 @@ def get_kasper_shocks():
         #   try: 
         data=urlopen(webpage)
         soup=BeautifulSoup(data, "html.parser")
+#        print(soup)
+    
         text_only=soup.get_text()
 #        print(text_only)
         count=0
-#        for link in soup.find_all("td"):
+        for link in soup.find_all("a"):
+            print("link web address is", link)
         dates=False
         
         indexes=([n for n in range(len(text_only)) if text_only.find(str(getyear), n)==n])
@@ -33,7 +36,7 @@ def get_kasper_shocks():
                 event=[x for x in event if x]
                 if event[0]!=event[1]:
     
-                    print(event)
+#                    print(event)
                     for x in event:
                         f.write(x)
                         f.write(" ")
