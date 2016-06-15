@@ -3,6 +3,8 @@
 Created on Thu Apr  7 11:29:34 2016
 
 @author: alyshareinard
+
+Very basic -- so far just reads in GONG fits files and displays them
 """
 
 import matplotlib.pyplot as plt

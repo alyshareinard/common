@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import pickle
 
 def check_daymonth(day, month, year):
     if (day==32 or (day==31 and (month==9 or month==4 or
@@ -17,9 +18,8 @@ def check_daymonth(day, month, year):
         month=1
     return [day, month, year]
         
-
                 
-def get_flare_catalog():
+def download_flare_catalog():
     """ program to read in GOES h-alpha and x-ray flare information from web"""
     """ usage: [ha, xray]=get_flare_catalog; ha is a dict"""
     """ ha['location'][300] prints the 300th location"""
@@ -161,6 +161,11 @@ def get_flare_catalog():
                'peak_time':peak_time, 'location':location,
                'optical_importance':optical_importance, 'optical_brightness':optical_brightness,
                'xray_class':xray_class, 'xray_size':xray_size, "NOAA_AR":NOAA_AR}
+
+#    filehandler=open('data/haflare_vals.p', 'wb')
+#    pickle.dump(ha_flares, filehandler)
+    filehandler=open('data/xflare_vals.p', 'wb')
+    pickle.dump(xray_flares, filehandler)
 
     ha_flares={"not yet implemented":"try get_flare_catalog_fromfile()"}
     return [ha_flares, xray_flares]    
@@ -429,6 +434,15 @@ def get_flare_catalog_fromfile():
                'optical_importance':optical_importance, 'optical_brightness':optical_brightness,
                'xray_class':xray_class, 'xray_size':xray_size, "NOAA_AR":NOAA_AR}
 
+
+    
     return [ha_flares, xray_flares]
+
+def get_flare_catalog():
+    try:
+        flares=download_flare_catalog()
+    except:
+        flares=get_flare_catalog_fromfile()
+    return flares
                             
 get_flare_catalog()
