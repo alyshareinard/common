@@ -82,6 +82,7 @@ def main():
     'pos_gsm_x', 'pos_gsm_y', 'pos_gsm_z']
 
     data_file='C:\\Users\\alysha.reinard.SWPC\\Dropbox\\Work\\data\\ACE\\'
+    data_file='/Users/alyshareinard/Dropbox/Work/data/ACE/'
     swics2hr=np.genfromtxt(data_file+'ACE_SWICS_Data_2hr_1998.txt', \
     skip_header=49, names=swics2hr_names)
 
@@ -119,7 +120,7 @@ def main():
 #        skip_header=63, names=magswepam_names)
 #        magswepam1min=np.concatenate((magswepam1min, x), axis=0)   
 
-    for each_year in range(1998, 2013): #2012 and 2013 are not formatted correctly
+    for each_year in range(1998, 2014): #2012 and 2013 are not formatted correctly
         print("reading combined, year: ", each_year)
         x=np.genfromtxt(data_file+'ACE_combined1hr_'+str(each_year)+'.txt', \
         skip_header=192, names=combined_names)
@@ -130,11 +131,14 @@ def main():
     combined1hr["min"])]
 
 #    print(combined_date)
+    
 
  
     combined_datetime=[datetime.strptime(combined_date[i], "%Y-%j-%H-%M") \
        for i in range(len(combined_date))]
-    combined1hr_wdate=rfn.append_fields(combined1hr, names="datetime", data=combined_datetime, usemask=False)
+#    print(type(combined_datetime), type(combined_datetime[0]))
+#    print(type(combined_date), type(combined_date[0]))
+#    combined1hr_wdate=rfn.append_fields(combined1hr, names="datetime", data=combined_datetime, usemask=False)
     
            
     #TODO: insert datetime into combined1hr
@@ -151,7 +155,8 @@ def main():
 #    filehandler=open('magswepam1min.p', 'wb')
 #    pickle.dump(magswepam1min, filehandler)
     
-    filehandler=open('combined1hr_wdate.p', 'wb')
-    pickle.dump(combined1hr_wdate, filehandler)
+    filehandler=open('data/ACE_combined1hr_wdate.p', 'wb')
+    combined1hr_wdates={"data":combined1hr, "datetime":combined_datetime}
+    pickle.dump(combined1hr_wdates, filehandler)
         
 main()
