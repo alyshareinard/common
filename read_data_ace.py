@@ -82,7 +82,7 @@ def main():
     'pos_gsm_x', 'pos_gsm_y', 'pos_gsm_z']
 
     data_file='C:\\Users\\alysha.reinard.SWPC\\Dropbox\\Work\\data\\ACE\\'
-    data_file='/Users/alyshareinard/Dropbox/Work/data/ACE/'
+#    data_file='/Users/alyshareinard/Dropbox/Work/data/ACE/'
     swics2hr=np.genfromtxt(data_file+'ACE_SWICS_Data_2hr_1998.txt', \
     skip_header=49, names=swics2hr_names)
 

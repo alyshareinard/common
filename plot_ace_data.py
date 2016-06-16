@@ -26,33 +26,35 @@ def plot_ace_data():
     gs1.update(wspace=0.025, hspace=0.05) # set the spacing between axes. 
 
 
-    plt.subplot(4,1,1) 
+    plt.subplot(5,1,1) 
     plt.plot(ACE_dates, ACE_data['proton_speed'], 'o-')
     plt.xlim(start_date, end_date)
     plt.ylim(0, 600)
     plt.xticks([])    
     
-    plt.subplot(4,1,2)
-    plt.plot(ACE_dates, ACE_data['proton_density'], 'o-')
+    plt.subplot(5,1,2)
+    plt.plot(ACE_dates, ACE_data['Bt'], 'o-')
     plt.xlim(start_date, end_date)
-    plt.ylim(0, 5)
+    plt.ylim(0, 10)
     plt.xticks([]) 
     
-    plt.subplot(4,1,3)
-    plt.plot(ACE_dates, ACE_data['Bt'], 'o-')
+    plt.subplot(5,1,3)
+    plt.plot(ACE_dates, ACE_data['Bgse_x'], 'o-')
     plt.xlim(start_date, end_date)
     plt.ylim(-10, 10)  
     plt.xticks([]) 
 
-    plt.subplot(4,1,4)
+    plt.subplot(5,1,4)
+    plt.plot(ACE_dates, ACE_data['Bgse_x'], 'o-')
+    plt.xlim(start_date, end_date)
+    plt.ylim(-10, 10)  
+    plt.xticks([]) 
+
+    plt.subplot(5,1,5)
     plt.plot(ACE_dates, ACE_data['Bgse_z'], 'o-')
     plt.xlim(start_date, end_date)
     plt.ylim(-10, 10) 
     
-    fig, ax = plt.subplots()
-
-    for label in ax.get_xticklabels()[::2]:
-        label.set_visible(False)
 
     plt.show()
     
