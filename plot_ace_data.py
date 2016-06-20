@@ -12,9 +12,11 @@ import matplotlib.gridspec as gridspec
 def plot_ace_data():
     f=open('data/ACE_combined1hr_wdate.p', 'rb')
     combined1hr_wdates=pickle.load(f)
-    
+    plot_start=datetime(2008, 12, 17, 0, 0)
+    plot_end=datetime(2008, 12, 18, 0, 0)
     start_date=datetime(2008, 12, 17, 3, 0)
     end_date=datetime(2008, 12, 17, 14, 0)
+    
     
     ACE_data=combined1hr_wdates["data"]
     ACE_dates=combined1hr_wdates["datetime"]
@@ -28,31 +30,32 @@ def plot_ace_data():
 
     plt.subplot(5,1,1) 
     plt.plot(ACE_dates, ACE_data['proton_speed'], 'o-')
-    plt.xlim(start_date, end_date)
+    plt.plot([plot_start, plot_start], [0, 600])
+    plt.xlim(plot_start, plot_end)
     plt.ylim(0, 600)
     plt.xticks([])    
     
     plt.subplot(5,1,2)
     plt.plot(ACE_dates, ACE_data['Bt'], 'o-')
-    plt.xlim(start_date, end_date)
+    plt.xlim(plot_start, plot_end)
     plt.ylim(0, 10)
     plt.xticks([]) 
     
     plt.subplot(5,1,3)
     plt.plot(ACE_dates, ACE_data['Bgse_x'], 'o-')
-    plt.xlim(start_date, end_date)
+    plt.xlim(plot_start, plot_end)
     plt.ylim(-10, 10)  
     plt.xticks([]) 
 
     plt.subplot(5,1,4)
     plt.plot(ACE_dates, ACE_data['Bgse_x'], 'o-')
-    plt.xlim(start_date, end_date)
+    plt.xlim(plot_start, plot_end)
     plt.ylim(-10, 10)  
     plt.xticks([]) 
 
     plt.subplot(5,1,5)
     plt.plot(ACE_dates, ACE_data['Bgse_z'], 'o-')
-    plt.xlim(start_date, end_date)
+    plt.xlim(plot_start, plot_end)
     plt.ylim(-10, 10) 
     
 
