@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import pickle
+from urllib.request import urlopen
 
 def check_daymonth(day, month, year):
     if (day==32 or (day==31 and (month==9 or month==4 or
@@ -46,7 +47,9 @@ def download_flare_catalog():
     NOAA_AR=[]
 
 
-    for getyear in range(1981, 2016):
+#    for getyear in range(1981, 2016):
+    for getyear in range(2013, 2016):
+ 
         print(getyear)
         webpage=web_stem+"goes-xrs-report_"+str(getyear)+".txt"
         line="nothing read yet"
@@ -164,9 +167,10 @@ def download_flare_catalog():
 
 #    filehandler=open('data/haflare_vals.p', 'wb')
 #    pickle.dump(ha_flares, filehandler)
-    filehandler=open('data/xflare_vals.p', 'wb')
-    pickle.dump(xray_flares, filehandler)
+    data_dir="/Users/alyshareinard/Documents/python/common/data"
 
+    filehandler=open(data_dir+'/xflare_vals.p', 'wb')
+    pickle.dump(xray_flares, filehandler)
     ha_flares={"not yet implemented":"try get_flare_catalog_fromfile()"}
     return [ha_flares, xray_flares]    
 
@@ -335,6 +339,8 @@ def get_flare_catalog_fromfile():
     final_missing=0
     peak_missing=0
     for line in xray_all_data:
+        if len(line)<2:
+            continue
 #        print("line", line)
         group_num.append(line[0:2])
         station_num.append(line[2:4])
@@ -439,9 +445,12 @@ def get_flare_catalog_fromfile():
     return [ha_flares, xray_flares]
 
 def get_flare_catalog():
+
     try:
+        print("downloading")
         flares=download_flare_catalog()
     except:
+        print("getting from file")
         flares=get_flare_catalog_fromfile()
     return flares
                             

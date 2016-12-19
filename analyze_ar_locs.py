@@ -151,6 +151,7 @@ def match_ars(ar_vals):
 #        plt.ylim(-90, 90)
 #        plt.show()  
 
+        #use the list of AR fits to find any that are similar to the same slope 270 degrees later.
         for index, val in enumerate(ar_fits):
 #            print("val", val)
 #            print("new_fit", new_fit)
@@ -158,6 +159,14 @@ def match_ars(ar_vals):
             match_NS=np.mean(NSs[index])
             if val[1]>new_fit[1]-10 and val[1]<new_fit[1]+10 and this_NS<match_NS+10 and this_NS>match_NS-10:
                 this_ar.append(ar_nums[index])
+         
+         #TODO: I just added these lines -- need to make a fit with AR and new AR to see how good it is.  
+        if len(this_ar)>0:            
+            
+            fit, res, _, _, _=np.polyfit(time_diffs, EW_vals, 1, full=True)
+#            print(fit)
+#            slopes.append(fit[0])
+            fit_fn=np.poly1d(fit)
             
         if len(this_ar)>2:
             print("this_ar", this_ar)
