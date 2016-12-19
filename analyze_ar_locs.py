@@ -11,9 +11,11 @@ import matplotlib.pyplot as plt
 import math
 import sys
 from datetime import datetime
+import os
 
 def load_ar_locs():
-    f=open('data/ar_vals.p', 'rb')
+    
+    f=open(os.getcwd()+os.sep+'data'+os.sep+'ar_vals.p', 'rb')
     ar_vals=pickle.load(f)
     location=ar_vals["loc"]
     NS=[]
