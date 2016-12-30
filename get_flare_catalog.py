@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 import pickle
 from urllib.request import urlopen
+import pandas as pd
 
 def check_daymonth(day, month, year):
     if (day==32 or (day==31 and (month==9 or month==4 or
@@ -184,7 +185,7 @@ def get_flare_catalog_fromfile():
     """ xray_size, NOAA_AR """
     #define data file location
     data_dir=os.getcwd()+"/data"
-    data_dir="/Users/alyshareinard/Documents/python/common/data"
+#    data_dir="/Users/alyshareinard/Documents/python/common/data"
     ha_file=data_dir+"/ha.txt"
     xray_file=data_dir+"/xray.txt"
 
@@ -205,6 +206,17 @@ def get_flare_catalog_fromfile():
     xray_size=[]
     NOAA_AR=[]
 
+
+    print("trying something different!!")
+    names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
+           "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", "NOAA_AR", "CMP", "area", "intensity"]
+    print(len(names))
+    widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
+    print(len(widths))
+    ha_df=pd.read_fwf(ha_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
+    print(ha_df['NOAA_AR'])
+#    print("well??")
+
     with open(ha_file, "r") as f:
         ha_all_data=f.readlines()
 
@@ -213,7 +225,7 @@ def get_flare_catalog_fromfile():
     peak_missing=0
     for line in ha_all_data:
         group_num.append(line[0:2])
-        station_num.append(line[2:4])
+        station_num.append(line[2:5])
         year=int(line[5:7])
         if year < 90:
             year=year+2000
@@ -303,13 +315,27 @@ def get_flare_catalog_fromfile():
             peak_time.append(None)
         except NameError:
             peak_time.append(None)
-        
+    
+            
+    print(ha_df[0:10])
+#    print(group_num[0:10])
+#    print(station_num[0:10])
+    print(initial_time[0:10])
+    print(final_time[0:10])
+    print(peak_time[0:10])
+    print(location[0:10])
+    print(optical_importance[0:10])
+    print(optical_brightness[0:10])
+    print(xray_class[0:10])
+    print(xray_size[0:10])
+    print(NOAA_AR[0:10])
+
+    
     ha_flares={'group_num':group_num, 'station_num':station_num,
                'initial_time':initial_time, 'final_time':final_time,
                'peak_time':peak_time, 'location':location,
                'optical_importance':optical_importance, 'optical_brightness':optical_brightness,
                'xray_class':xray_class, 'xray_size':xray_size, "NOAA_AR":NOAA_AR}
-
 
 
 
