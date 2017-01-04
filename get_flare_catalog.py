@@ -209,13 +209,15 @@ def get_flare_catalog_fromfile():
 
     print("trying something different!!")
     names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
-           "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", "NOAA_AR", "CMP", "area", "intensity"]
+           "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", 
+           "NOAA_AR", "CMP", "area", "intensity"]
     print(len(names))
     widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
     print(len(widths))
     ha_df=pd.read_fwf(ha_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
-    print(ha_df['NOAA_AR'])
-#    print("well??")
+    
+    ha_df=ha_df[["year_month_day", "init_time", "peak_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
+
 
     with open(ha_file, "r") as f:
         ha_all_data=f.readlines()
@@ -340,7 +342,16 @@ def get_flare_catalog_fromfile():
 
 
 
-
+    print("trying something different!!")
+    names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
+           "peak_time", "location", "optical", "something", "xray_class", "xray_size", "station", "blank", "NOAA_AR", "etc"]
+    print(len(names))
+    widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 24]
+    print(len(widths))
+    xray_df=pd.read_fwf(xray_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
+    xray_df=xray_df[["year_month_day", "init_time", "peak_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
+       
+    #datetime(initial_year, initial_month, initial_day, initial_hr, initial_min)
     #Fill in X-ray values
     #prepare lists for variables
     group_num=[]
@@ -466,7 +477,18 @@ def get_flare_catalog_fromfile():
                'optical_importance':optical_importance, 'optical_brightness':optical_brightness,
                'xray_class':xray_class, 'xray_size':xray_size, "NOAA_AR":NOAA_AR}
 
-
+    print(xray_df[0:10])
+#    print(group_num[0:10])
+#    print(station_num[0:10])
+    print(initial_time[0:10])
+    print(final_time[0:10])
+    print(peak_time[0:10])
+    print(location[0:10])
+    print(optical_importance[0:10])
+    print(optical_brightness[0:10])
+    print(xray_class[0:10])
+    print(xray_size[0:10])
+    print(NOAA_AR[0:10])
     
     return [ha_flares, xray_flares]
 
