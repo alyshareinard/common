@@ -3,12 +3,43 @@ from datetime import datetime
 import pickle
 from urllib.request import urlopen
 import pandas as pd
+import math
+
+def create_datetime(ymd, hm):
+    date=[]
+    #unpack ymd and fix year
+
+    for item, ihm in zip(ymd, hm):
+        if item=="  ":
+            print("blank line")
+            continue
+        year=int(item[0:2])
+        month=int(item[3:5])
+        day=int(item[6:8])
+        if year>70: 
+            year=year+1900
+        else: year+=2000
+        if math.isnan(ihm)==False:
+            hour=math.floor(ihm/100)
+            minute=math.floor(ihm-hour*100)
+
+            #now check to see if the time is past 2400 and adjust
+            if hour==24:
+                hour-=24
+                day+=1
+                [day, month, year]=check_daymonth(day, month, year)
+            try:
+                date.append(datetime(year, month, day, hour, minute))
+            except:
+                date.append(None)
+        else:
+            date.append(None)
+    return date
 
 def check_daymonth(day, month, year):
     if (day==32 or (day==31 and (month==9 or month==4 or
     month==6 or month==11)) or (day==30 and month==2) or
     (month==2 and day==29 and year % 4 ==0)):
-
 #        print("month was: ", month)
 #        print("day was: ", day)
         day=1
@@ -216,8 +247,11 @@ def get_flare_catalog_fromfile():
     print(len(widths))
     ha_df=pd.read_fwf(ha_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
     
-    ha_df=ha_df[["year_month_day", "init_time", "peak_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
+    ha_df["init_date"]=create_datetime(ha_df["year_month_day"], ha_df["init_time"])
+    ha_df["peak_date"]=create_datetime(ha_df["year_month_day"], ha_df["peak_time"])
+    ha_df["final_date"]=create_datetime(ha_df["year_month_day"], ha_df["final_time"])
 
+    ha_df=ha_df[["init_date", "peak_date", "final_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
 
     with open(ha_file, "r") as f:
         ha_all_data=f.readlines()
@@ -319,18 +353,17 @@ def get_flare_catalog_fromfile():
             peak_time.append(None)
     
             
-    print(ha_df[0:10])
-#    print(group_num[0:10])
-#    print(station_num[0:10])
-    print(initial_time[0:10])
-    print(final_time[0:10])
-    print(peak_time[0:10])
-    print(location[0:10])
-    print(optical_importance[0:10])
-    print(optical_brightness[0:10])
-    print(xray_class[0:10])
-    print(xray_size[0:10])
-    print(NOAA_AR[0:10])
+#    print(ha_df[0:10])
+##    print(group_num[0:10])
+##    print(station_num[0:10])
+#    print(final_time[0:10])
+#    print(peak_time[0:10])
+#    print(location[0:10])
+#    print(optical_importance[0:10])
+#    print(optical_brightness[0:10])
+#    print(xray_class[0:10])
+#    print(xray_size[0:10])
+#    print(NOAA_AR[0:10])
 
     
     ha_flares={'group_num':group_num, 'station_num':station_num,
@@ -340,16 +373,18 @@ def get_flare_catalog_fromfile():
                'xray_class':xray_class, 'xray_size':xray_size, "NOAA_AR":NOAA_AR}
 
 
-
-
-    print("trying something different!!")
     names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
            "peak_time", "location", "optical", "something", "xray_class", "xray_size", "station", "blank", "NOAA_AR", "etc"]
-    print(len(names))
+
     widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 24]
-    print(len(widths))
+
     xray_df=pd.read_fwf(xray_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
     xray_df=xray_df[["year_month_day", "init_time", "peak_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
+    xray_df["init_date"]=create_datetime(xray_df["year_month_day"], xray_df["init_time"])
+    xray_df["peak_date"]=create_datetime(xray_df["year_month_day"], xray_df["peak_time"])
+    xray_df["final_date"]=create_datetime(xray_df["year_month_day"], xray_df["final_time"])
+
+    xray_df=xray_df[["init_date", "peak_date", "final_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
        
     #datetime(initial_year, initial_month, initial_day, initial_hr, initial_min)
     #Fill in X-ray values
@@ -477,18 +512,18 @@ def get_flare_catalog_fromfile():
                'optical_importance':optical_importance, 'optical_brightness':optical_brightness,
                'xray_class':xray_class, 'xray_size':xray_size, "NOAA_AR":NOAA_AR}
 
-    print(xray_df[0:10])
-#    print(group_num[0:10])
-#    print(station_num[0:10])
-    print(initial_time[0:10])
-    print(final_time[0:10])
-    print(peak_time[0:10])
-    print(location[0:10])
-    print(optical_importance[0:10])
-    print(optical_brightness[0:10])
-    print(xray_class[0:10])
-    print(xray_size[0:10])
-    print(NOAA_AR[0:10])
+#    print(xray_df[0:10])
+##    print(group_num[0:10])
+##    print(station_num[0:10])
+#    print(initial_time[0:10])
+#    print(final_time[0:10])
+#    print(peak_time[0:10])
+#    print(location[0:10])
+#    print(optical_importance[0:10])
+#    print(optical_brightness[0:10])
+#    print(xray_class[0:10])
+#    print(xray_size[0:10])
+#    print(NOAA_AR[0:10])
     
     return [ha_flares, xray_flares]
 
@@ -496,7 +531,7 @@ def get_flare_catalog():
 
     try:
         print("downloading")
-        flares=download_flare_catalog()
+        flares=download_flare_catalog1()
     except:
         print("getting from file")
         flares=get_flare_catalog_fromfile()
