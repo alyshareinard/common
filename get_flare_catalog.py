@@ -12,6 +12,7 @@ def create_datetime(ymd, hm):
     for item, ihm in zip(ymd, hm):
         if item=="  ":
             print("blank line")
+            date.append(None)
             continue
         year=int(item[0:2])
         month=int(item[3:5])
@@ -54,11 +55,8 @@ def check_daymonth(day, month, year):
                 
 def download_flare_catalog():
     """ program to read in GOES h-alpha and x-ray flare information from web"""
-    """ usage: [ha, xray]=get_flare_catalog; ha is a dict"""
+    """ usage: [ha, xray]=get_flare_catalog; ha is a pandas dataframe"""
     """ ha['location'][300] prints the 300th location"""
-    """ keys are ha.keys() -- station_num, group_num, initial_time, final_time"""
-    """ peak_time, optical_importance, optical_brightness, xray_class, """
-    """ xray_size, NOAA_AR """
 
     web_stem="http://www.ngdc.noaa.gov/stp/space-weather/solar-data/solar-features/solar-flares/x-rays/goes/xrs/"
     #Fill in X-ray values
@@ -204,7 +202,7 @@ def download_flare_catalog():
     filehandler=open(data_dir+'/xflare_vals.p', 'wb')
     pickle.dump(xray_flares, filehandler)
     ha_flares={"not yet implemented":"try get_flare_catalog_fromfile()"}
-    return [ha_flares, xray_flares]    
+    return (ha_flares, xray_flares)
 
         
 def get_flare_catalog_fromfile():
@@ -251,7 +249,7 @@ def get_flare_catalog_fromfile():
     ha_df["peak_date"]=create_datetime(ha_df["year_month_day"], ha_df["peak_time"])
     ha_df["final_date"]=create_datetime(ha_df["year_month_day"], ha_df["final_time"])
 
-    ha_df=ha_df[["init_date", "peak_date", "final_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
+    ha_df=ha_df[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
 
     with open(ha_file, "r") as f:
         ha_all_data=f.readlines()
@@ -379,12 +377,12 @@ def get_flare_catalog_fromfile():
     widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 24]
 
     xray_df=pd.read_fwf(xray_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
-    xray_df=xray_df[["year_month_day", "init_time", "peak_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
     xray_df["init_date"]=create_datetime(xray_df["year_month_day"], xray_df["init_time"])
     xray_df["peak_date"]=create_datetime(xray_df["year_month_day"], xray_df["peak_time"])
+
     xray_df["final_date"]=create_datetime(xray_df["year_month_day"], xray_df["final_time"])
 
-    xray_df=xray_df[["init_date", "peak_date", "final_time", "location", "xray_class", "xray_size", "NOAA_AR"]]
+    xray_df=xray_df[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
        
     #datetime(initial_year, initial_month, initial_day, initial_hr, initial_min)
     #Fill in X-ray values
@@ -525,16 +523,16 @@ def get_flare_catalog_fromfile():
 #    print(xray_size[0:10])
 #    print(NOAA_AR[0:10])
     
-    return [ha_flares, xray_flares]
+    return (xray_df, ha_df)
 
 def get_flare_catalog():
 
     try:
         print("downloading")
-        flares=download_flare_catalog1()
+        (xray, halpha)=download_flare_catalog1()
     except:
         print("getting from file")
-        flares=get_flare_catalog_fromfile()
-    return flares
+        (xray, halpha)=get_flare_catalog_fromfile()
+    return (xray, halpha)
                             
 get_flare_catalog()
