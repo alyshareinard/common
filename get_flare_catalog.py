@@ -18,7 +18,7 @@ def create_datetime(ymd, hm):
             continue
         
         datestr=item.split()
-        print(datestr)
+#        print(datestr)
         
         year=int(datestr[0])
         month=int(datestr[1])
@@ -71,7 +71,8 @@ def download_flare_catalog():
     """ ha['location'][300] prints the 300th location"""
 
     count=0
-    for getyear in range(2000, 2015):  
+    #strange character at the end of teh 2003 file causes trouble
+    for getyear in range(2014, 2016):  
         print("year: ", getyear)
         web_stem="http://www.ngdc.noaa.gov/stp/space-weather/solar-data/solar-features/solar-flares/x-rays/goes/xrs/"
         xray_webpage=web_stem+"goes-xrs-report_"+str(getyear)+".txt"
@@ -92,6 +93,7 @@ def download_flare_catalog():
         #translates dates to datetime
     #    print(type(xray_df["year_month_day"]))
     #    print(xray_df["year_month_day"][0:10])
+
         xray_df_year["init_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["init_time"])
         xray_df_year["peak_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["peak_time"])
         xray_df_year["final_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["final_time"])
@@ -99,33 +101,33 @@ def download_flare_catalog():
         xray_df_year=xray_df_year[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
            
           
-        names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
-               "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", 
-               "NOAA_AR", "CMP", "area", "intensity"]
-        widths=[2, 3, 4, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
-        ha_df_year=pd.read_fwf(ha_webpage, widths=widths, header=None, names=names)#, parse_dates=[[2, 3, 4]])
-    
-        ha_df_year["year_month_day"]=[str(x)+" "+str(y)+" "+str(z) for x,y,z in zip(ha_df_year["year"], ha_df_year["month"], ha_df_year["day"])]
-    
-        #translates dates to datetime    
-    
-        ha_df_year["init_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["init_time"])
-        ha_df_year["peak_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["peak_time"])
-        ha_df_year["final_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["final_time"])
-    
-        ha_df_year=ha_df_year[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
+#        names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
+#               "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", 
+#               "NOAA_AR", "CMP", "area", "intensity"]
+#        widths=[2, 3, 4, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
+#        ha_df_year=pd.read_fwf(ha_webpage, widths=widths, header=None, names=names)#, parse_dates=[[2, 3, 4]])
+#    
+#        ha_df_year["year_month_day"]=[str(x)+" "+str(y)+" "+str(z) for x,y,z in zip(ha_df_year["year"], ha_df_year["month"], ha_df_year["day"])]
+#    
+#        #translates dates to datetime    
+#    
+#        ha_df_year["init_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["init_time"])
+#        ha_df_year["peak_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["peak_time"])
+#        ha_df_year["final_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["final_time"])
+#    
+#        ha_df_year=ha_df_year[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
 
 
         if count==0:
-            ha_df=ha_df_year
+#            ha_df=ha_df_year
             xray_df=xray_df_year
             count=1
         else:
-            dfs=[ha_df, ha_df_year]
-            ha_df=pd.concat(dfs)
+#            dfs=[ha_df, ha_df_year]
+#            ha_df=pd.concat(dfs)
             dfs=[xray_df, xray_df_year]
             xray_df=pd.concat(dfs)
-
+    ha_df="not yet implemented"
     return (xray_df, ha_df)
     #xray_pd=pd.DataFrame(data, widths=widths, header=None, columns=names, parse_dates=[[2, 3, 4]])
 
