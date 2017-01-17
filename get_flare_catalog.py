@@ -18,6 +18,7 @@ def create_datetime(ymd, hm):
             continue
         
         datestr=item.split()
+        print(datestr)
         
         year=int(datestr[0])
         month=int(datestr[1])
