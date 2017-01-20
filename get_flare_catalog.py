@@ -97,7 +97,8 @@ def download_flare_catalog(start_year, stop_year):
         xray_df_year["init_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["init_time"])
         xray_df_year["peak_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["peak_time"])
         xray_df_year["final_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["final_time"])
-        xray_df_year["location"]=[x if type(x) is str else "      " for x in xray_df_year["location"]]
+        xray_df_year["location"]=[x if type(x) is str else "" for x in xray_df_year["location"]]
+#        xray_df_year["location"]=[x if str(x)[0]=="N" or str(x)[0]=="S" else None for x in xray_df["location"]]
 
         xray_df_year=xray_df_year[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
         
@@ -170,6 +171,7 @@ def get_flare_catalog_fromfile():
 
     xray_df=pd.read_fwf(xray_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
     #translates dates to datetime
+    xray_df["location"]=[x if str(x)[0]=="N" or str(x)[0]=="S" else None for x in xray_df["location"]]
     xray_df["init_date"]=create_datetime(xray_df["year_month_day"], xray_df["init_time"])
     xray_df["peak_date"]=create_datetime(xray_df["year_month_day"], xray_df["peak_time"])
     xray_df["final_date"]=create_datetime(xray_df["year_month_day"], xray_df["final_time"])
