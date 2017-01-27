@@ -42,6 +42,7 @@ def create_datetime(ymd, hm):
             #print(day, month, year, hour, minute)
             try:
                 date.append(datetime(year, month, day, hour, minute))
+#                print("here ", date[-1])
                 #print(datetime(year, month, day, hour, minute))
             except:
                 date.append(np.nan)
