@@ -148,20 +148,20 @@ def get_flare_catalog_fromfile():
     ha_file=data_dir+"/ha.txt"
     xray_file=data_dir+"/xray.txt"
 
-    #code eto read in halpha data
-    names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
-           "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", 
-           "NOAA_AR", "CMP", "area", "intensity"]
-
-    widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
-
-    ha_df=pd.read_fwf(ha_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
-    #translates dates to datetime   
-    ha_df["init_date"]=create_datetime(ha_df["year_month_day"], ha_df["init_time"])
-    ha_df["peak_date"]=create_datetime(ha_df["year_month_day"], ha_df["peak_time"])
-    ha_df["final_date"]=create_datetime(ha_df["year_month_day"], ha_df["final_time"])
-
-    ha_df=ha_df[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
+#    #code eto read in halpha data
+#    names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
+#           "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", 
+#           "NOAA_AR", "CMP", "area", "intensity"]
+#
+#    widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
+#
+#    ha_df=pd.read_fwf(ha_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
+#    #translates dates to datetime   
+#    ha_df["init_date"]=create_datetime(ha_df["year_month_day"], ha_df["init_time"])
+#    ha_df["peak_date"]=create_datetime(ha_df["year_month_day"], ha_df["peak_time"])
+#    ha_df["final_date"]=create_datetime(ha_df["year_month_day"], ha_df["final_time"])
+#
+#    ha_df=ha_df[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
 
 
     #code to read in xray data
@@ -179,7 +179,7 @@ def get_flare_catalog_fromfile():
 
     xray_df=xray_df[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
        
-
+    ha_df="not yet implemented"
     return (xray_df, ha_df)
 
 def get_flare_catalog(start_year=2013, stop_year=2014):
