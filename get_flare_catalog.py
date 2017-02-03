@@ -13,7 +13,7 @@ def create_datetime(ymd, hm):
     for item, ihm in zip(ymd, hm):
 #        print("len(date): ", len(date))
         if item=="  ":
-            print("blank line")
+#            print("blank line")
             date.append(None)
             continue
         
