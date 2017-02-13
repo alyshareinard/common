@@ -37,7 +37,7 @@ def get_yashiro_catalog():
             hour=int(line[12:14])
             minute=int(line[15:17])
             sec=int(line[18:20])
-            CME_date.append(datetime(year, month, day, hour, minute, sec))
+            CME_date.append(datetime(year, month, day, hour, minute))#, sec))
             CME_PA.append(line[24:27])
             CME_width.append(line[32:35])
             CME_lin_speed.append(line[37:42])
