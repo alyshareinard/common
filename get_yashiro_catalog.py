@@ -49,6 +49,8 @@ def get_yashiro_catalog():
             CME_ke.append(line[86:95])
             CME_mpa.append(line[98:102])
             CME_remarks.append(line[104:])
+            
+        
                 
 ##            print("lin", CME_lin_speed[-1])
 ##            print("2O", CME_2Ospeed_init[-1])

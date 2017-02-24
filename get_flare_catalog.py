@@ -95,6 +95,7 @@ def download_flare_catalog(start_year, stop_year):
     #    print(type(xray_df["year_month_day"]))
     #    print(xray_df["year_month_day"][0:10])
 
+        
         xray_df_year["init_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["init_time"])
         xray_df_year["peak_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["peak_time"])
         xray_df_year["final_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["final_time"])
