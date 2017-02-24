@@ -99,8 +99,8 @@ def download_flare_catalog(start_year, stop_year):
         xray_df_year["init_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["init_time"])
         xray_df_year["peak_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["peak_time"])
         xray_df_year["final_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["final_time"])
-        xray_df_year["location"]=[x if type(x) is str else "" for x in xray_df_year["location"]]
-#        xray_df_year["location"]=[x if str(x)[0]=="N" or str(x)[0]=="S" else None for x in xray_df["location"]]
+ #       xray_df_year["location"]=[x if type(x) is str else "" for x in xray_df_year["location"]]
+        xray_df_year["location"]=[x if str(x)[0]=="N" or str(x)[0]=="S" else None for x in xray_df_year["location"]]
 
         xray_df_year=xray_df_year[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
         
