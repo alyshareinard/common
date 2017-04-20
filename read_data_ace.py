@@ -98,27 +98,7 @@ def main():
     combined1hr=np.genfromtxt(data_file+'ACE_combined1hr_1998.txt', \
     skip_header=116, names=combined_names)#, missing_values=9.9999e+03)
 
-#
-#    for each_year in range(1998,2012):
-#        print("reading SWICS, year: ", each_year)
-#        x=np.genfromtxt(data_file+'ACE_SWICS_Data_2hr_'+str(each_year)+'.txt', \
-#        skip_header=49, names=swics2hr_names)
-#        swics2hr=np.concatenate((swics2hr, x), axis=0)
-#
-#        
-#        x=np.genfromtxt(data_file+'ACE_SWICS_Data_1hr_'+str(each_year)+'.txt', \
-#        skip_header=49, names=swics1hr_names)
-#        swics1hr=np.concatenate((swics1hr, x), axis=0)
-#
-#        x=np.genfromtxt(data_file+'ACE_SWICS_QdistData_'+str(each_year)+'.txt', \
-#        skip_header=51, names=swicsqdist_names)
-#        swicsqdist=np.concatenate((swicsqdist, x), axis=0)        
-#
-#    for each_year in range(1998, 2015):
-#        print("reading MagSwepam, year: ", each_year)
-#        x=np.genfromtxt(data_file+'ACE_MagSwepam_'+str(each_year)+'.txt', \
-#        skip_header=63, names=magswepam_names)
-#        magswepam1min=np.concatenate((magswepam1min, x), axis=0)   
+  
 
     for each_year in range(1998, 2014): #2012 and 2013 are not formatted correctly
         print("reading combined, year: ", each_year)

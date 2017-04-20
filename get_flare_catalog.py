@@ -11,14 +11,11 @@ def create_datetime(ymd, hm):
     #unpack ymd and fix year
 
     for item, ihm in zip(ymd, hm):
-#        print("len(date): ", len(date))
         if item=="  ":
-#            print("blank line")
             date.append(None)
             continue
         
         datestr=item.split()
-#        print(datestr)
         
         year=int(datestr[0])
         month=int(datestr[1])
@@ -39,11 +36,8 @@ def create_datetime(ymd, hm):
                 hour-=24
                 day+=1
                 [day, month, year]=check_daymonth(day, month, year)
-            #print(day, month, year, hour, minute)
             try:
                 date.append(datetime(year, month, day, hour, minute))
-#                print("here ", date[-1])
-                #print(datetime(year, month, day, hour, minute))
             except:
                 date.append(np.nan)
         else:
@@ -54,12 +48,8 @@ def check_daymonth(day, month, year):
     if (day==32 or (day==31 and (month==9 or month==4 or
     month==6 or month==11)) or (day==30 and month==2) or
     (month==2 and day==29 and year % 4 ==0)):
-#        print("month was: ", month)
-#        print("day was: ", day)
         day=1
         month=month+1
-#        print("month is: ", month)
-#        print("day is: ", day)
     if month==13:
         year=year+1
         month=1
@@ -88,42 +78,18 @@ def download_flare_catalog(start_year, stop_year):
         widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 24]
         xray_df_year=pd.read_fwf(xray_webpage, widths=widths, header=None, names=names)#, parse_dates=[[2, 3, 4]])
         xray_df_year["year_month_day"]=[str(x)+" "+str(y)+" "+str(z) for x,y,z in zip(xray_df_year["year"], xray_df_year["month"], xray_df_year["day"])]
-    #    print(temp[0:10])
-    #    xray_df["year_month_day"]=[x+"-"+y+"-"+z for x,y,z in zip(xray_df[2], xray_df[3], xray_df[4])]
-    
-        #translates dates to datetime
-    #    print(type(xray_df["year_month_day"]))
-    #    print(xray_df["year_month_day"][0:10])
+
 
         
         xray_df_year["init_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["init_time"])
         xray_df_year["peak_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["peak_time"])
         xray_df_year["final_date"]=create_datetime(xray_df_year["year_month_day"], xray_df_year["final_time"])
- #       xray_df_year["location"]=[x if type(x) is str else "" for x in xray_df_year["location"]]
         xray_df_year["location"]=[x if str(x)[0]=="N" or str(x)[0]=="S" else None for x in xray_df_year["location"]]
 
         xray_df_year=xray_df_year[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
-        
-          
-#        names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
-#               "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", 
-#               "NOAA_AR", "CMP", "area", "intensity"]
-#        widths=[2, 3, 4, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
-#        ha_df_year=pd.read_fwf(ha_webpage, widths=widths, header=None, names=names)#, parse_dates=[[2, 3, 4]])
-#    
-#        ha_df_year["year_month_day"]=[str(x)+" "+str(y)+" "+str(z) for x,y,z in zip(ha_df_year["year"], ha_df_year["month"], ha_df_year["day"])]
-#    
-#        #translates dates to datetime    
-#    
-#        ha_df_year["init_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["init_time"])
-#        ha_df_year["peak_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["peak_time"])
-#        ha_df_year["final_date"]=create_datetime(ha_df_year["year_month_day"], ha_df_year["final_time"])
-#    
-#        ha_df_year=ha_df_year[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
-
 
         if count==0:
-#            ha_df=ha_df_year
+
             xray_df=xray_df_year
             count=1
         else:
@@ -133,7 +99,6 @@ def download_flare_catalog(start_year, stop_year):
             xray_df=pd.concat(dfs)
     ha_df="not yet implemented"
     return (xray_df, ha_df)
-
 
         
 def get_flare_catalog_fromfile():
@@ -148,22 +113,6 @@ def get_flare_catalog_fromfile():
 #    data_dir="/Users/alyshareinard/Documents/python/common/data"
     ha_file=data_dir+"/ha.txt"
     xray_file=data_dir+"/xray.txt"
-
-#    #code eto read in halpha data
-#    names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
-#           "peak_time", "location", "data source", "something", "xray_class", "xray_size", "station", "optical", "int_flux", 
-#           "NOAA_AR", "CMP", "area", "intensity"]
-#
-#    widths=[2, 3, 2, 2, 2, 2, 4, 1, 4, 1, 4, 7, 3, 22, 1, 3, 8, 8, 6, 5, 8, 8, 8]
-#
-#    ha_df=pd.read_fwf(ha_file, widths=widths, header=None, names=names, parse_dates=[[2, 3, 4]])
-#    #translates dates to datetime   
-#    ha_df["init_date"]=create_datetime(ha_df["year_month_day"], ha_df["init_time"])
-#    ha_df["peak_date"]=create_datetime(ha_df["year_month_day"], ha_df["peak_time"])
-#    ha_df["final_date"]=create_datetime(ha_df["year_month_day"], ha_df["final_time"])
-#
-#    ha_df=ha_df[["init_date", "peak_date", "final_date", "location", "xray_class", "xray_size", "NOAA_AR"]]
-
 
     #code to read in xray data
     names=["data code", "station code", "year", "month", "day", "init_ind", "init_time", "final_ind", "final_time", "peak_ind", 
