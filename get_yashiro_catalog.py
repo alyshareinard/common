@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import pandas as pd
 
 def get_yashiro_catalog():
     """ program to read in yashiro CME catalog """
@@ -7,19 +8,6 @@ def get_yashiro_catalog():
     data_dir=os.getcwd()+"/data"
     cme_file=data_dir+"/yashiro_all.txt"
 
-    #prepare lists for CME values
-    CME_date=[]
-    CME_PA=[]
-    CME_width=[]
-    CME_lin_speed=[]
-    CME_2Ospeed_init=[]
-    CME_2Ospeed_final=[]
-    CME_2Ospeed_20R=[]
-    CME_accel=[]
-    CME_mass=[]
-    CME_ke=[]
-    CME_mpa=[]
-    CME_remarks=[]
 
     names=["ymd", "hour", "sep", "minute", "sep2", "sec", "PA", "width",
            "lin_speed", "20speed_init", "20speed_final", "20speed_20R", 
